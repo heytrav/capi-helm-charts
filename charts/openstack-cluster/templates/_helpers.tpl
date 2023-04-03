@@ -64,13 +64,23 @@ Labels for component-level resources
 {{- end -}}
 
 {{/*
-Name of the secret containing the cloud credentials.
+Name of the secret containing the control plane cloud credentials.
 */}}
-{{- define "openstack-cluster.cloudCredentialsSecretName" -}}
+{{- define "openstack-cluster.controlPlaneCloudCredentialsSecretName" -}}
 {{- if .Values.cloudCredentialsSecretName -}}
 {{- .Values.cloudCredentialsSecretName -}}
 {{- else -}}
-{{ include "openstack-cluster.componentName" (list . "cloud-credentials") -}}
+{{ include "openstack-cluster.componentName" (list . "control-plane-cloud-credentials") -}}
+{{- end -}}
+{{- end -}}
+{{/*
+Name of the secret containing the node group cloud credentials.
+*/}}
+{{- define "openstack-cluster.nodeGroupCloudCredentialsSecretName" -}}
+{{- if .Values.cloudCredentialsSecretName -}}
+{{- .Values.cloudCredentialsSecretName -}}
+{{- else -}}
+{{ include "openstack-cluster.componentName" (list . "node-group-cloud-credentials") -}}
 {{- end -}}
 {{- end -}}
 

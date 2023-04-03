@@ -12,7 +12,7 @@ metadata:
 spec:
   identityRef:
     kind: Secret
-    name: {{ include "openstack-cluster.cloudCredentialsSecretName" . }}
+    name: {{ include "openstack-cluster.controlPlaneCloudCredentialsSecretName" . }}
   cloudName: openstack
   {{- with .Values.controlPlaneEndpoint }}
   controlPlaneEndpoint: {{ toYaml . | nindent 4 }}

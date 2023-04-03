@@ -7,7 +7,7 @@ template:
   spec:
     identityRef:
       kind: Secret
-      name: {{ include "openstack-cluster.cloudCredentialsSecretName" . }}
+      name: {{ include "openstack-cluster.controlPlaneCloudCredentialsSecretName" . }}
     cloudName: openstack
     flavor: {{ .Values.controlPlane.machineFlavor | required ".Values.controlPlane.machineFlavor is required" }}
     {{- with .Values.machineSSHKeyName }}
@@ -18,16 +18,24 @@ template:
     {{- end }}
     {{- if .Values.machineImageId }}
     imageUUID: {{ .Values.machineImageId }}
+    {{- else if .Values.controlPlane.machineImage }}
+    image: {{ tpl .Values.controlPlane.machineImage . }}
     {{- else if .Values.machineImage }}
     image: {{ tpl .Values.machineImage . }}
     {{- else }}
-    {{- fail "Either machineImage or machineImageId is required" }}
+    {{- fail "Either controlPlane.machineImage, machineImage or machineImageId is required" }}
     {{- end }}
     {{- with .Values.controlPlane.machineNetworking.networks }}
     networks: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- with .Values.controlPlane.machineNetworking.ports }}
     ports: {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if .Values.controlPlane.securityGroups }}
+    securityGroups:
+      {{- range .Values.controlPlane.securityGroups }}
+      - name: {{ .name }}
+      {{- end }}
     {{- end }}
 {{- end }}
 

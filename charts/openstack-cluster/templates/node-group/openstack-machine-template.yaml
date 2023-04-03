@@ -9,7 +9,7 @@ template:
   spec:
     identityRef:
       kind: Secret
-      name: {{ include "openstack-cluster.cloudCredentialsSecretName" $ctx }}
+      name: {{ include "openstack-cluster.nodeGroupCloudCredentialsSecretName" $ctx }}
     cloudName: openstack
     flavor: {{ $nodeGroup.machineFlavor | required (printf "no flavor specified for node group '%s'" $nodeGroup.name) }}
     {{- with $ctx.Values.machineSSHKeyName }}
@@ -18,12 +18,20 @@ template:
     {{- with $nodeGroup.machineRootVolume }}
     rootVolume: {{ toYaml . | nindent 6 }}
     {{- end }}
+    {{- if $nodeGroup.securityGroups }}
+    securityGroups:
+      {{- range $nodeGroup.securityGroups }}
+      - name: {{ .name }}
+      {{- end }}
+    {{- end }}
     {{- if $ctx.Values.machineImageId }}
     imageUUID: {{ $ctx.Values.machineImageId }}
+    {{- else if $ctx.Values.nodeGroupDefaults.machineImage }}
+    image: {{ tpl $ctx.Values.nodeGroupDefaults.machineImage $ctx }}
     {{- else if $ctx.Values.machineImage }}
     image: {{ tpl $ctx.Values.machineImage $ctx }}
     {{- else }}
-    {{- fail "Either machineImage or machineImageId is required" }}
+    {{- fail "Either nodeGroupDefaults.machineImage, machineImage or machineImageId is required" }}
     {{- end }}
     {{- with $nodeGroup.machineNetworking.networks }}
     networks: {{ toYaml . | nindent 6 }}
