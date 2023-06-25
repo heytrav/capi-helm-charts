@@ -24,6 +24,27 @@ cloudName: openstack
 # This should match the version of kubelet and kubeadm in the image
 kubernetesVersion:
 
+# WARN(travis) Flatcar based images
+flatcarOS: false
+flatcarContainerLinuxConfig:
+  format: ignition
+  ignition:
+    containerLinuxConfig:
+      additionalConfig: |
+        systemd:
+          units:
+          - name: coreos-metadata-sshkeys@.service
+            enabled: true
+          - name: kubeadm.service
+            enabled: true
+            dropins:
+            - name: 10-flatcar.conf
+              contents: |
+                [Unit]
+                Requires=containerd.service coreos-metadata.service
+                After=containerd.service coreos-metadata.service
+                [Service]
+                EnvironmentFile=/run/metadata/flatcar
 # The name of the image to use for cluster machines
 machineImage:
 # OR
@@ -34,7 +55,7 @@ machineImageId:
 machineSSHKeyName:
 
 # The prefix used for project labels and annotations
-projectPrefix: capi.stackhpc.com
+projectPrefix: capi.catalystcloud.nz
 
 # Any extra annotations to add to the cluster
 clusterAnnotations: {}
@@ -170,6 +191,7 @@ controlPlane:
     # etcd metrics, controller-manager, scheduler and kube-proxy to 0.0.0.0 so that Prometheus
     # can reach them to collect metrics
     clusterConfiguration:
+      imageRepository: oci-registry.catalystcloud.nz
       etcd:
         local:
           extraArgs:

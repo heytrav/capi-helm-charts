@@ -80,6 +80,9 @@ mirrors and additional packages.
 */}}
 {{- define "openstack-cluster.kubeadmConfigSpec" -}}
 {{- $ctx := index . 0 }}
+{{/* WARN(travis) Flatcar is experimental. Do not merge yet! */}}
+{{- $flatcarOS := $ctx.Values.flatcarOS }}
+{{- $flatcarContainerLinuxConfig := $ctx.Values.flatcarContainerLinuxConfig }}
 {{- $registryMirrors := $ctx.Values.registryMirrors }}
 {{- $additionalPackages := $ctx.Values.additionalPackages }}
 {{- $trustedCAs := $ctx.Values.trustedCAs }}
@@ -134,7 +137,13 @@ files:
   - {{ toYaml . | nindent 4 }}
   {{- end }}
 {{- end }}
-{{- if or $trustedCAs $additionalPackages $preKubeadmCommands }}
+{{- if $flatcarOS }}
+{{/* WARN(travis) Flatcar based images. */}}
+{{- with $flatcarContainerLinuxConfig }}
+{{- toYaml . }}
+{{- end }}
+{{- end }}
+{{- if or $trustedCAs $additionalPackages $preKubeadmCommands $flatcarOS }}
 preKubeadmCommands:
   {{- if $trustedCAs }}
   - update-ca-certificates
@@ -148,6 +157,12 @@ preKubeadmCommands:
   {{- end }}
 {{- end }}
 {{- end }}
+{{/* WARN(travis) Flatcar based images */}}
+{{- if .Values.flatcarOS }}
+{{- with .Values.flatcarContainerLinuxConfig }}
+{{ toYaml . }}
+{{- end }}
+{{- end}}
 
 {{/*
 Produces the image for the cluster autoscaler.
