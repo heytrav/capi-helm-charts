@@ -8,14 +8,12 @@ cloudCredentialsSecretName:
 clouds:
 # The PEM-encoded CA certificate for the specified cloud
 cloudCACert:
-
 # The name of the cloud to use from the specified clouds.yaml
 cloudName: openstack
 
 # The Kubernetes version of the cluster
 # This should match the version of kubelet and kubeadm in the image
 kubernetesVersion:
-
 # The name of the image to use for cluster machines
 machineImage:
 # OR
@@ -24,9 +22,8 @@ machineImageId:
 
 # The name of the SSH key to inject into cluster machines
 machineSSHKeyName:
-
 # The prefix used for project labels and annotations
-projectPrefix: capi.stackhpc.com
+projectPrefix: capi.catalystcloud.nz
 
 # Any extra annotations to add to the cluster
 clusterAnnotations: {}
@@ -90,7 +87,6 @@ registryMirrors:
     - https://quay.io/v2/azimuth/quay.io
   registry.k8s.io:
     - https://quay.io/v2/azimuth/registry.k8s.io
-
 # A map of trusted CAs to add to the system trust on cluster nodes
 trustedCAs: {}
   # custom-ca: |
@@ -114,7 +110,7 @@ etcd:
     # This is at the expense of taking longer to detect a leader failure
     # https://etcd.io/docs/v3.5/tuning/#time-parameters
     heartbeat-interval: "500"  # defaults to 100ms in etcd 3.5
-    election-timeout: "5000"   # defaults to 1000ms in etcd 3.5
+    election-timeout: "5000"  # defaults to 1000ms in etcd 3.5
     # Set a slightly larger space quota than the default (default is 2GB)
     quota-backend-bytes: "4294967296"
     # Listen for metrics on 0.0.0.0 so Prometheus can collect them
@@ -122,17 +118,17 @@ etcd:
   # The block device configuration for etcd
   # If not specified, the root device is used
   blockDevice:
-    # # The size of the block device
+    #  # The size of the block device
     # size: 20
-    # # The type of the block device
-    # # If set to "Volume", which is the default, then a Cinder volume is used to back the block device
-    # # If set to "Local", local ephemeral storage is used to back the block device
+    #  # The type of the block device
+    #  # If set to "Volume", which is the default, then a Cinder volume is used to back the block device
+    #  # If set to "Local", local ephemeral storage is used to back the block device
     # type: Volume
-    # # The volume type to use
-    # # If not specified, the default volume type is used
+    #  # The volume type to use
+    #  # If not specified, the default volume type is used
     # volumeType:
-    # # The volume availability zone to use
-    # # If not specified, the machine availability zone is used
+    #  # The volume availability zone to use
+    #  # If not specified, the machine availability zone is used
     # availabilityZone:
 
 # Settings for the Kubernetes API server
@@ -145,7 +141,7 @@ apiServer:
   # allowedCidrs
   #  - 192.168.0.0/16  # needed for cluster to init
   #  - 10.10.0.0/16  # IPv4 Internal Network
-  #  - 123.123.123.123 # some other IPs
+  #  - 123.123.123.123  # some other IPs
   # Indicates whether to associate a floating IP with the API server
   associateFloatingIP: true
   # The specific floating IP to associate with the API server
@@ -158,7 +154,6 @@ apiServer:
   fixedIP:
   # The port to use for the API server
   port: 6443
-
 # Set osDistro used. ubuntu, flatcar, etc.
 osDistro: ubuntu
 #
@@ -210,21 +205,21 @@ controlPlane:
     # my.company.org/label: value
   # Additional block devices for control plane machines
   additionalBlockDevices: {}
-    # # The key is the name for the block device in the context of the machine
-    # # It is also used to tag the block device, so that the volume can be identified in instance metadata
+    #  # The key is the name for the block device in the context of the machine
+    #  # It is also used to tag the block device, so that the volume can be identified in instance metadata
     # scratch:
-    #   # The size of the block device
+    #  # The size of the block device
     #   size: 20
-    #   # The type of the block device
-    #   # If set to "Volume", which is the default, then a Cinder volume is used to back the block device
-    #   # If set to "Local", local ephemeral storage is used to back the block device
-    #   # In both cases, the lifecycle of the device is the same as the machine
+    #  # The type of the block device
+    #  # If set to "Volume", which is the default, then a Cinder volume is used to back the block device
+    #  # If set to "Local", local ephemeral storage is used to back the block device
+    #  # In both cases, the lifecycle of the device is the same as the machine
     #   type: Volume
-    #   # The volume type to use
-    #   # If not specified, the default volume type is used
+    #  # The volume type to use
+    #  # If not specified, the default volume type is used
     #   volumeType:
-    #   # The volume availability zone to use
-    #   # If not specified, the machine availability zone is used
+    #  # The volume availability zone to use
+    #  # If not specified, the machine availability zone is used
     #   availabilityZone:
   # Indicates whether control plane machines should use config drive or not
   machineConfigDrive: false
@@ -266,6 +261,11 @@ controlPlane:
     # controller-manager, scheduler and kube-proxy to 0.0.0.0 so that Prometheus can reach
     # them to collect metrics
     clusterConfiguration:
+      imageRepository: oci-registry.catalystcloud.nz
+      etcd:
+        local:
+          extraArgs:
+            listen-metrics-urls: http://0.0.0.0:2381
       apiServer:
         extraArgs:
           cloud-provider: external
@@ -387,11 +387,10 @@ nodeGroupDefaults:
     enabled: true
     # The spec for the health check
     spec:
-      # By default, remediate unhealthy workers as long as they are less than 40% of
-      # the total number of workers in the node group
-      maxUnhealthy: 40%
-      # If a node takes longer than 30 mins to startup, remediate it
-      nodeStartupTimeout: 30m0s
+      # By default, unhealthy worker nodes are always remediated
+      maxUnhealthy: 100%
+      # If a node takes longer than 10 mins to startup, remediate it
+      nodeStartupTimeout: 10m0s
       # By default, consider a worker node that has not been Ready for
       # more than 5 mins unhealthy
       unhealthyConditions:
@@ -404,8 +403,8 @@ nodeGroupDefaults:
 
 # The worker node groups for the cluster
 nodeGroups:
-  -  # The name of the node group
-    name: md-0
+    # The name of the node group
+  - name: md-0
     # The number of machines in the node group if autoscale is false
     machineCount: 3
     # The minimum and maximum number of machines in the node group if autoscale is true
@@ -416,7 +415,9 @@ nodeGroups:
 autoscaler:
   # The image to use for the autoscaler component
   image:
-    repository: registry.k8s.io/autoscaling/cluster-autoscaler
+    # Defaults to the global image prefix if not given
+    prefix:
+    repository: oci-registry.catalystcloud.nz/autoscaling/cluster-autoscaler
     pullPolicy: IfNotPresent
     tag: v1.29.0
   imagePullSecrets: []

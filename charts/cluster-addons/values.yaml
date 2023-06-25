@@ -1,5 +1,4 @@
 ---
-
 # The name of the Cluster API cluster
 # if not given, the release name is used
 clusterName:
@@ -19,7 +18,11 @@ cni:
       version: v3.27.2
     release:
       namespace: tigera-operator
-      values: {}
+      values:
+        tigeraOperator:
+          registry: oci-registry.catalystcloud.nz
+        installation:
+          registry: oci-registry.catalystcloud.nz
     # Nova metadata service
     # See https://docs.openstack.org/nova/latest/user/metadata.html#the-metadata-service
     globalNetworkPolicy:
@@ -69,7 +72,20 @@ openstack:
       repo: https://kubernetes.github.io/cloud-provider-openstack
       name: openstack-cloud-controller-manager
       version: 2.29.1
-    values: {}
+    values:
+      image:
+        repository: oci-registry.catalystcloud.nz/catalystcloud/openstack-cloud-controller-manager
+        tag: v1.25.3
+      tolerations:
+        - key: node.cloudprovider.kubernetes.io/uninitialized
+          value: "true"
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          value: "true"
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/etcd
+          value: "true"
+          effect: NoExecute
   # Settings for the Cinder CSI plugin
   csiCinder:
     # Indicates if the Cinder CSI should be enabled
@@ -80,11 +96,77 @@ openstack:
       repo: https://kubernetes.github.io/cloud-provider-openstack
       name: openstack-cinder-csi
       version: 2.29.0
-    values: {}
+    values:
+      csi:
+        attacher:
+          image:
+            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-attacher
+            tag: v3.4.0
+            pullPolicy: IfNotPresent
+        provisioner:
+          image:
+            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-provisioner
+            tag: v3.4.0
+            pullPolicy: IfNotPresent
+        snapshotter:
+          image:
+            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-snapshotter
+            tag: v6.2.1
+            pullPolicy: IfNotPresent
+          resources: {}
+          extraArgs: {}
+        resizer:
+          image:
+            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-resizer
+            tag: v1.7.0
+            pullPolicy: IfNotPresent
+        livenessprobe:
+          image:
+            repository: oci-registry.catalystcloud.nz/catalystcloud/livenessprobe
+            tag: v2.7.0
+            pullPolicy: IfNotPresent
+        nodeDriverRegistrar:
+          image:
+            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-node-driver-registrar
+            tag: v2.6.2
+            pullPolicy: IfNotPresent
+        plugin:
+          image:
+            repository: oci-registry.catalystcloud.nz/catalystcloud/cinder-csi-plugin
+            pullPolicy: IfNotPresent
+            tag: v1.22.2 # defaults to .Chart.AppVersion
+          nodePlugin:
+            affinity: {}
+            nodeSelector: {}
+            tolerations:
+              - operator: Exists
+            kubeletDir: /var/lib/kubelet
+          controllerPlugin:
+            replicas: 1
+            strategy:
+              # RollingUpdate strategy replaces old pods with new ones gradually,
+              # without incurring downtime.
+              type: RollingUpdate
+              rollingUpdate:
+                # maxUnavailable is the maximum number of pods that can be
+                # unavailable during the update process.
+                maxUnavailable: 0
+                # maxSurge is the maximum number of pods that can be
+                # created over the desired number of pods.
+                maxSurge: 1
+            affinity: {}
+            nodeSelector: {}
+            tolerations:
+              - key: node-role.kubernetes.io/control-plane
+                value: "true"
+                effect: NoSchedule
+          resources: {}
+          extraArgs: {}
+      logVerbosityLevel: 2
     # Variables affecting the definition of the storage class
     defaultStorageClass:
       # Indicates if the storage class should be enabled
-      enabled: true
+      enabled: false
       # The name of the storage class
       name: csi-cinder
       # The reclaim policy for the storage class
@@ -145,14 +227,16 @@ etcdDefrag:
 # https://github.com/kubernetes-sigs/metrics-server#helm-chart
 metricsServer:
   # Indicates if the metrics server should be deployed
-  enabled: true
+  enabled: false
   chart:
     repo: https://kubernetes-sigs.github.io/metrics-server
     name: metrics-server
     version: 3.12.0
   release:
     namespace: kube-system
-    values: {}
+    values:
+      image:
+        repository: oci-registry.catalystcloud.nz/catalystcloud/metrics-server
 
 # Settings for the Kubernetes dashboard
 # https://github.com/kubernetes/dashboard/tree/master/charts/helm-chart/kubernetes-dashboard
@@ -165,7 +249,12 @@ kubernetesDashboard:
     version: 6.0.8
   release:
     namespace: kubernetes-dashboard
-    values: {}
+    values:
+      image:
+        repository: oci-registry.catalystcloud.nz/catalystcloud/dashboard
+      metricsScraper:
+        image:
+          repository: oci-registry.catalystcloud.nz/catalystcloud/metrics-scraper
 
 # Settings for ingress controllers
 ingress:
@@ -224,7 +313,7 @@ monitoring:
                     requests:
                       storage: 10Gi
   lokiStack:
-    enabled: true
+    enabled: false
     chart:
       repo: https://grafana.github.io/helm-charts
       name: loki-stack
@@ -263,7 +352,7 @@ monitoring:
 # https://github.com/kubernetes-sigs/node-feature-discovery/tree/master/deployment/helm/node-feature-discovery
 nodeFeatureDiscovery:
   # Indicates if node feature discovery should be enabled
-  enabled: true
+  enabled: false
   chart:
     repo: https://kubernetes-sigs.github.io/node-feature-discovery/charts
     name: node-feature-discovery
@@ -278,7 +367,7 @@ nvidiaGPUOperator:
   # Note that because it uses node feature discovery to run only on nodes
   # with an NVIDIA GPU available, the overhead of enabling this on clusters
   # that do not need it now but may need it in the future is low
-  enabled: true
+  enabled: false
   chart:
     repo: https://helm.ngc.nvidia.com/nvidia
     name: gpu-operator
@@ -296,7 +385,7 @@ mellanoxNetworkOperator:
   # Note that because it uses node feature discovery to run only on nodes
   # with a Mellanox NIC available, the overhead of enabling this on clusters
   # that do not need it now but may need it in the future is low
-  enabled: true
+  enabled: false
   chart:
     repo: https://helm.ngc.nvidia.com/nvidia
     name: network-operator
@@ -306,7 +395,8 @@ mellanoxNetworkOperator:
     values: {}
 
 # Settings for any custom addons
-custom: {}
+custom:
+  {}
   #  #Indexed by the name of the release on the target cluster
   # my-custom-helm-release:
   #   # Indicates that this is a Helm addon
