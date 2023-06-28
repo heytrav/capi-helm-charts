@@ -58,8 +58,10 @@ preKubeadmCommands:
   {{- if $skipPhases }}
   - cat /run/kubeadm/skip-phases.yaml >> /run/kubeadm/kubeadm.yaml
   {{- end }}
+  {{- if not $ctx.Values.flatcarOS }}
   {{- if $kubeProxyConfiguration }}
   - cat /run/kubeadm/kube-proxy-configuration.yaml >> /run/kubeadm/kubeadm.yaml
+  {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}
