@@ -14,6 +14,10 @@ option of InitConfiguration and specifying a KubeProxyConfiguration.
 {{- $initConfiguration := omit (index . 1 | dig "initConfiguration" dict) "skipPhases" }}
 {{- $skipPhases := index . 1 | dig "initConfiguration" "skipPhases" list }}
 {{- $kubeProxyConfiguration := index . 1 | dig "kubeProxyConfiguration" dict }}
+{{- $ignitionBasedOS := $ctx.Values.ignitionBasedOS }}
+{{- if $ignitionBasedOS }}
+{{- $initConfiguration := mergeOverwrite $initConfiguration $ctx.Values.ignitionInitConfiguration }}
+{{- end}}
 {{- $files := index . 1 | dig "files" list }}
 {{- $preKubeadmCommands := index . 1 | dig "preKubeadmCommands" list }}
 
@@ -58,7 +62,7 @@ preKubeadmCommands:
   {{- if $skipPhases }}
   - cat /run/kubeadm/skip-phases.yaml >> /run/kubeadm/kubeadm.yaml
   {{- end }}
-  {{- if not $ctx.Values.flatcarOS }}
+  {{- if not $ignitionBasedOS }}
   {{- if $kubeProxyConfiguration }}
   - cat /run/kubeadm/kube-proxy-configuration.yaml >> /run/kubeadm/kubeadm.yaml
   {{- end }}

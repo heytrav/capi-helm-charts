@@ -24,9 +24,20 @@ cloudName: openstack
 # This should match the version of kubelet and kubeadm in the image
 kubernetesVersion:
 
-# WARN(travis) Flatcar based images
-flatcarOS: false
-flatcarContainerLinuxConfig:
+# WARN(travis) Ignition based images
+ignitionBasedOS: false
+ignitionInitConfiguration:
+  nodeRegistration:
+    name: ${COREOS_OPENSTACK_HOSTNAME}
+ignitionKubeadmConfigSpec:
+  joinConfiguration:
+    nodeRegistration:
+      name: ${COREOS_OPENSTACK_HOSTNAME}
+ignitionPreKubeadmCommands:
+  - export COREOS_OPENSTACK_HOSTNAME=${COREOS_OPENSTACK_HOSTNAME%.*}
+  - envsubst < /etc/kubeadm.yml > /etc/kubeadm.yml.tmp
+  - mv /etc/kubeadm.yml.tmp /etc/kubeadm.yml
+ignitionContainerLinuxConfig:
   format: ignition
   ignition:
     containerLinuxConfig:
