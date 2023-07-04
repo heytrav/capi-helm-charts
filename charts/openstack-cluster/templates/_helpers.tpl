@@ -80,15 +80,19 @@ mirrors and additional packages.
 */}}
 {{- define "openstack-cluster.kubeadmConfigSpec" -}}
 {{- $ctx := index . 0 }}
-{{/* WARN(travis) Flatcar is experimental. Do not merge yet! */}}
-{{- $flatcarOS := $ctx.Values.flatcarOS }}
-{{- $flatcarContainerLinuxConfig := $ctx.Values.flatcarContainerLinuxConfig }}
+{{/* WARN(travis) Ignition based images. */}}
+{{- $ignitionBasedOS := $ctx.Values.ignitionBasedOS }}
+{{- $ignitionContainerLinuxConfig := $ctx.Values.ignitionContainerLinuxConfig }}
+{{- $ignitionPreKubeadmCommands := $ctx.Values.ignitionPreKubeadmCommands }}
 {{- $registryMirrors := $ctx.Values.registryMirrors }}
 {{- $additionalPackages := $ctx.Values.additionalPackages }}
 {{- $trustedCAs := $ctx.Values.trustedCAs }}
 {{- $kubeadmConfigSpec := omit (index . 1) "files" "preKubeadmCommands" }}
 {{- $files := index . 1 | dig "files" list }}
 {{- $preKubeadmCommands := index . 1 | dig "preKubeadmCommands" list }}
+{{- if $ignitionBasedOS }}
+{{- $kubeadmConfigSpec := mergeOverwrite $kubeadmConfigSpec $ctx.Values.ignitionKubeadmConfigSpec }}
+{{- end }}
 
 {{- with $kubeadmConfigSpec }}
 {{- toYaml . }}
@@ -137,13 +141,13 @@ files:
   - {{ toYaml . | nindent 4 }}
   {{- end }}
 {{- end }}
-{{- if $flatcarOS }}
-{{/* WARN(travis) Flatcar based images. */}}
-{{- with $flatcarContainerLinuxConfig }}
+{{- if $ignitionBasedOS }}
+{{/* WARN(travis) Ignition based images. */}}
+{{- with $ignitionContainerLinuxConfig }}
 {{- toYaml . }}
 {{- end }}
 {{- end }}
-{{- if or $trustedCAs $additionalPackages $preKubeadmCommands $flatcarOS }}
+{{- if or $trustedCAs $additionalPackages $preKubeadmCommands $ignitionBasedOS }}
 preKubeadmCommands:
   {{- if $trustedCAs }}
   - update-ca-certificates
@@ -155,11 +159,14 @@ preKubeadmCommands:
   {{- range $preKubeadmCommands }}
   - {{ . }}
   {{- end }}
+  {{- range $ignitionPreKubeadmCommands }}
+  - {{ . }}
+  {{- end }}
 {{- end }}
 {{- end }}
-{{/* WARN(travis) Flatcar based images */}}
-{{- if .Values.flatcarOS }}
-{{- with .Values.flatcarContainerLinuxConfig }}
+{{/* WARN(travis) Ignition based images */}}
+{{- if .Values.ignitionBasedOS }}
+{{- with .Values.ignitionContainerLinuxConfig }}
 {{ toYaml . }}
 {{- end }}
 {{- end}}
