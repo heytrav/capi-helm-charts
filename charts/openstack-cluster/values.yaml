@@ -19,7 +19,6 @@ machineImage:
 # OR
 # The ID of the image to use for cluster machines
 machineImageId:
-
 # The name of the SSH key to inject into cluster machines
 machineSSHKeyName:
 # The prefix used for project labels and annotations
@@ -154,6 +153,35 @@ apiServer:
   fixedIP:
   # The port to use for the API server
   port: 6443
+
+# The management loadbalancer is a Catalyst Cloud addition. It allows access to
+# a CAPI workload cluster that has no Floating IP's available.
+# This loadbalancer is configured by default to proxy both KubeAPI on 6443 and
+# SSH on port 22 to all control plane nodes. SSH is configured as Round Robin TCP,
+# so connections will vary which host connections land on. Further access to other
+# cluster nodes can be obtained by SSH'ing from there.
+managementLoadBalancer:
+  enabled: false
+  # Secret name that holds the administrator cloud credentials used to create
+  # the management loadbalancer within CAPI management network and bind ports
+  # across projects. The cloudName is used to find the clouds.yaml entry.
+  cloudCredentialsAdminSecretName: "admin-cloud-credentials"
+  # The clouds.yaml entry within the cloud secret.
+  cloudName: magnumadmin
+  # The ID of the subnet the management loadbalancer should create listeners on.
+  # This should be a network routable from the CAPI management cluster as CAPI
+  # will use this endpoint for access into a private cluster.
+  # If set, it will be used instead of `network`.
+  subnet:
+    id: ""
+  # The network name and project the management loadbalancer should create
+  # listeners on.
+  # This should be a network routable from the CAPI management cluster as CAPI
+  # will use this endpoint for access into a private cluster.
+  # This filter will not be used if `subnet` is specified, above.
+  network:
+    projectId: ""
+    name: ""
 # Set osDistro used. ubuntu, flatcar, etc.
 osDistro: ubuntu
 #

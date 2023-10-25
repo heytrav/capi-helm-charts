@@ -70,3 +70,19 @@ spec:
   controlPlaneAvailabilityZones: {{ toYaml .failureDomains | nindent 4 }}
   {{- end }}
   {{- end }}
+  {{- with .Values.managementLoadBalancer }}
+  managementLoadBalancer:
+    cloudName: {{ .cloudName }}
+    enabled: {{ .enabled }}
+    identityRef:
+      # This account needs to authenticate so it can create a loadbalancer in the same project
+      # as the subnet given below.
+      # It also needs `admin` role to attach members to any neutron network in another project.
+      kind: Secret
+      name: {{ .cloudCredentialsAdminSecretName }}
+    additionalPorts:
+      - 22
+    provider: amphora
+    subnet: {{ toYaml .subnet | nindent 6 }}
+    network: {{ toYaml .network | nindent 6 }}
+  {{- end }}
