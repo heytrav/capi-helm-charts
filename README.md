@@ -1,3 +1,41 @@
+## Catalyst cloud
+
+
+Add dev channel to helm:
+```
+helm repo add dev-cc-capi-helm-charts \
+  --username <gitlab user> \
+  --password <gitlab password or token> \
+  https://gitlab.int.catalystcloud.nz/api/v4/projects/848/packages/helm/dev
+```
+
+
+Add stable channel:
+```
+
+helm repo add cc-capi-helm-charts \
+  --username <gitlab user> \
+  --password <gitlab password or token> \
+  https://gitlab.int.catalystcloud.nz/api/v4/projects/848/packages/helm/stable
+```
+
+Update the repo get any recent packages:
+```
+helm repo update cc-capi-helm-charts
+```
+
+Assuming you have all the necessary default values defined in `values.yml`, `clouds.yaml` etc. you can create a cluster as follows:
+```
+helm install lf-7 -f addons.yaml  -f values.yaml -f clouds.yaml cc-capi-helm-charts/openstack-cluster
+```
+
+
+### Creating helm packages
+
+* commits tagged with a semantic version on `${CI_DEFAULT_BRANCH}` (i.e. main) are published in the **stable** channel
+* commits tagged with a semantic version on any branch other than the default branch are published to the **dev** channel
+
+
 # capi-helm-charts
 ![Test](https://github.com/stackhpc/capi-helm-charts/actions/workflows/main.yaml/badge.svg?branch=main)
 ![Publish](https://github.com/stackhpc/capi-helm-charts/actions/workflows/publish-artifacts.yaml/badge.svg?branch=main)

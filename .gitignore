@@ -2,3 +2,37 @@ charts/*/charts
 Chart.lock
 .vscode
 manifests.yaml
+
+# Created by https://www.toptal.com/developers/gitignore/api/vim,direnv,helm
+# Edit at https://www.toptal.com/developers/gitignore?templates=vim,direnv,helm
+
+### direnv ###
+.direnv
+.envrc
+
+### Helm ###
+# Chart dependencies
+**/charts/**/*.tgz
+
+### Vim ###
+# Swap
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+# End of https://www.toptal.com/developers/gitignore/api/vim,direnv,helm
