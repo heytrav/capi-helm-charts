@@ -101,34 +101,28 @@ openstack:
         attacher:
           image:
             repository: oci-registry.catalystcloud.nz/catalystcloud/csi-attacher
-            tag: v3.4.0
             pullPolicy: IfNotPresent
         provisioner:
           image:
             repository: oci-registry.catalystcloud.nz/catalystcloud/csi-provisioner
-            tag: v3.4.0
             pullPolicy: IfNotPresent
         snapshotter:
           image:
             repository: oci-registry.catalystcloud.nz/catalystcloud/csi-snapshotter
-            tag: v6.2.1
             pullPolicy: IfNotPresent
           resources: {}
           extraArgs: {}
         resizer:
           image:
             repository: oci-registry.catalystcloud.nz/catalystcloud/csi-resizer
-            tag: v1.7.0
             pullPolicy: IfNotPresent
         livenessprobe:
           image:
             repository: oci-registry.catalystcloud.nz/catalystcloud/livenessprobe
-            tag: v2.7.0
             pullPolicy: IfNotPresent
         nodeDriverRegistrar:
           image:
             repository: oci-registry.catalystcloud.nz/catalystcloud/csi-node-driver-registrar
-            tag: v2.6.2
             pullPolicy: IfNotPresent
         plugin:
           image:
