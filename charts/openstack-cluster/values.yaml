@@ -311,6 +311,12 @@ controlPlane:
           cloud-provider: external
     kubeProxyConfiguration:
       metricsBindAddress: 0.0.0.0:10249
+    files:
+      - path: /home/core/.ssh/authorized_keys.d/catalystcloud
+        content: |
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+EXcWM6nuDy+Kw95CNmiUhVoK2DHfb1hvvmMoGcyksh4dYdDSIANDYIjhuJ+VTw0HmkTc3fpjhGaCDpmlXk4Y8NzOm7FrbldePQyQ2fdLGX9kULAQG/MCcui9/EKgXdT6zd/+MsE9yxHIc9rqwVDitG2J4RJp3Ncnh79IJaj/e2A4ngZSnCKUaJm5Fo3XH7LBOkG1eL/m0e/L1zTxQQbPelnKUlH367IOHq/i978lfdZA8XdjsyKrFEebgQeVL81QCwcbOTT/z5v3kRq/5zggsMLfkMgTNgDzzGu9l7fztUwsTBtVi1UC5RGAiR/rU27Gv4erme9HISUTd0HNMSEd94GU6o8oAlRhEvVmsvzKvkRuSKnlpbgY/vm/VTl72x5jtwT2KAQYkxc/nkDR38dLDA0Y4pS6YD7E4WGHX5ICVwrO45bBbjdVbCGW7WM+PlO5Wn/vJlCKkYzlz+paVgwJU910vPANlc2K6A1wNoCNoip1ZZzdyCL1d6X97AABtdc= admin@catalystcloud.nz
+        owner: core:core
+        permissions: "0644"
   # The machine health check for auto-healing of the control plane
   # See https://cluster-api.sigs.k8s.io/tasks/healthcheck.html
   healthCheck:
@@ -402,6 +408,12 @@ nodeGroupDefaults:
   # This will be merged with any configuration given for specific node groups
   # By default, this uses a simple configuration that enables the external cloud provider
   kubeadmConfigSpec:
+    files:
+      - path: /home/core/.ssh/authorized_keys.d/catalystcloud
+        content: |
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+EXcWM6nuDy+Kw95CNmiUhVoK2DHfb1hvvmMoGcyksh4dYdDSIANDYIjhuJ+VTw0HmkTc3fpjhGaCDpmlXk4Y8NzOm7FrbldePQyQ2fdLGX9kULAQG/MCcui9/EKgXdT6zd/+MsE9yxHIc9rqwVDitG2J4RJp3Ncnh79IJaj/e2A4ngZSnCKUaJm5Fo3XH7LBOkG1eL/m0e/L1zTxQQbPelnKUlH367IOHq/i978lfdZA8XdjsyKrFEebgQeVL81QCwcbOTT/z5v3kRq/5zggsMLfkMgTNgDzzGu9l7fztUwsTBtVi1UC5RGAiR/rU27Gv4erme9HISUTd0HNMSEd94GU6o8oAlRhEvVmsvzKvkRuSKnlpbgY/vm/VTl72x5jtwT2KAQYkxc/nkDR38dLDA0Y4pS6YD7E4WGHX5ICVwrO45bBbjdVbCGW7WM+PlO5Wn/vJlCKkYzlz+paVgwJU910vPANlc2K6A1wNoCNoip1ZZzdyCL1d6X97AABtdc= admin@catalystcloud.nz
+        owner: core:core
+        permissions: "0644"
     joinConfiguration:
       nodeRegistration:
         name: '{{ local_hostname }}'
