@@ -189,6 +189,36 @@ osDistro: ubuntu
 # possible values: k8s-keystone-auth
 # authWebhook: k8s-keystone-auth
 
+# API server audit log config. Set this to true to enable audit logging.
+# auditLog: false
+# Override policy config as needed to log specific events.
+# auditLogPolicyConfig: |
+#   # Log all requests at the Metadata level.
+#   apiVersion: audit.k8s.io/v1
+#   kind: Policy
+#   rules:
+#   - level: Metadata
+# Send audit logs to an external webhook. If enabled requires
+# a webhook config..
+# auditLogWebhook: false
+# auditLogWebhookConfig: |
+#   ---
+#   apiVersion: v1
+#   kind: Config
+#   preferences: {}
+#   clusters:
+#     - cluster:
+#         insecure-skip-tls-verify: true
+#         server: https://audit-logging-host/
+#       name: audit-webhook
+#   users:
+#     - name: audit-webhook
+#   contexts:
+#     - context:
+#         cluster: audit-webhook
+#         user: audit-webhook
+#       name: audit-webhook
+#   current-context: audit-webhook
 # Settings for the control plane
 controlPlane:
   # The failure domains to use for control plane nodes

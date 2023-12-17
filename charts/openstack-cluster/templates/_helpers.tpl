@@ -337,6 +337,15 @@ Create folders necessary for webhook integration.
 {{- end }}
 
 {{/*
+Create folders necessary for webhook integration.
+*/}}
+{{- define "openstack-cluster.auditLogPatches" }}
+  preKubeadmCommands:
+    - mkdir -p /etc/kubernetes/audit
+    - mkdir -p /etc/kubernetes/audit-logs
+{{- end }}
+
+{{/*
 Supplement kubeadmConfig with apiServer config and webhook patches as needed. Authentication
 webhooks and policies for audit logging can be added here.
 */}}
@@ -356,6 +365,18 @@ webhooks and policies for audit logging can be added here.
 Add else if blocks with other webhooks and apiServer arguments (i.e. audit logging) 
 in future
 */}}
+{{- end }}
+{{- if $auditLog }}
+        audit-policy-file: /etc/kubernetes/audit/audit_policy.yaml
+        audit-log-path: /etcu/kubernetes/audit-logs
+{{- if $auditLogWebhook }}
+        audit-webhook-config-file: /etc/kubernetes/audit/audit_webhook_config.yaml
+        audit-webhook-initial-backoff: 30
+{{- else }}
+        audit-log-maxage: 30
+        audit-log-maxbackup: 10
+        audit-log-maxsize: 20
+{{- end }}
 {{- end }}
   initConfiguration:
     patches:
@@ -415,4 +436,63 @@ Produces integration for k8s-keystone-auth webhook on apiserver
         current-context: webhook
       owner: root:root
       permissions: "0644"
+{{- end }}
+{{/*
+Produces integration for audit logging policy.
+*/}}
+{{- define "openstack-cluster.auditLogPolicy" }}
+  files:
+    - path: /etc/kubernetes/patches/kube-apiserver10+strategic.yaml
+      permissions: "0644"
+      owner: root:root
+      content: |
+        spec:
+          containers:
+          -  name: kube-apiserver
+             volumeMounts:
+             - mountPath: /etc/kubernetes/audit/audit_policy.yaml
+               name: audit
+               readOnly: true
+             - mountPath: /etc/kubernetes/audit-logs
+               name: audit-logs
+               readOnly: false
+          volumes:
+          - hostPath:
+              path: /etc/kubernetes/audit/audit_policy.yaml
+              type: File
+            name: audit
+          - hostPath:
+              path: /etc/kubernetes/audit-logs
+              type: DirectoryOrCreate
+            name: audit-logs
+    - path: /etc/kubernetes/audit/audit_policy.yaml
+      permissions: "0644"
+      owner: root:root
+      content: | {{ tpl .Values.auditLogPolicyConfig . | nindent 4 }}
+{{- end }}
+{{/*
+Produces integration for audit logging webhook config.
+*/}}
+{{- define "openstack-cluster.auditLogWebhook" }}
+  files:
+    - path: /etc/kubernetes/patches/kube-apiserver11+strategic.yaml
+      permissions: "0644"
+      owner: root:root
+      content: |
+        spec:
+          containers:
+          -  name: kube-apiserver
+             volumeMounts:
+             - mountPath: /etc/kubernetes/audit/audit_webhook_config.yaml
+               name: audit-webhook-config
+               readOnly: true
+          volumes:
+          - hostPath:
+              path: /etc/kubernetes/audit/audit_webhook_config.yaml
+              type: File
+            name: audit-webhook-config
+    - path: /etc/kubernetes/audit/audit_webhook_config.yaml
+      permissions: "0644"
+      owner: root:root
+      content: {{ tpl .Values.auditLogWebhookConfig . | nindent 4 }}
 {{- end }}
