@@ -8,20 +8,20 @@ stages:
   - publish
 
 .helm_publish_jobs:
-  image: gitlab.int.catalystcloud.nz:4567/catalystcloud/helm-environment:20230606T015011Z
+  image: gitlab.int.catalystcloud.nz:4567/catalystcloud/helm-environment:20231218T191550Z
   before_script:
     - cd ${CI_PROJECT_DIR}/charts/openstack-cluster
     - export CHART_VERSION=$(git describe --tags)
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_NAME =~ /^\d+\.\d+\.\d+.*$/
 
-
 helm_package:
   extends: .helm_publish_jobs
   stage: package
   script:
     - helm dependency build ${CI_PROJECT_DIR}/charts/openstack-cluster
-    - helm package --app-version $(git describe --always) --version ${CHART_VERSION} ${CI_PROJECT_DIR}/charts/openstack-cluster
+    - helm package --app-version $(git describe --always) --version ${CHART_VERSION}
+      ${CI_PROJECT_DIR}/charts/openstack-cluster
   artifacts:
     paths:
       - "${CI_PROJECT_DIR}/charts/openstack-cluster/openstack-cluster-*.tgz"
@@ -39,7 +39,8 @@ helm_package:
       ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/${HELM_CHANNEL}/charts
     - >
       helm push
-      ${CI_PROJECT_DIR}/charts/openstack-cluster/openstack-cluster-${CHART_VERSION}.tgz oci://internal.oci-registry.nz-por-1.catalystcloud.nz/capi-helm-charts
+      ${CI_PROJECT_DIR}/charts/openstack-cluster/openstack-cluster-${CHART_VERSION}.tgz
+      oci://internal.oci-registry.nz-por-1.catalystcloud.nz/capi-helm-charts
   dependencies:
     - helm_package
 # NOTE(travis) Alternately publish chart to "dev" or "stable" channel depending if commit tag is on the default branch.
@@ -49,7 +50,6 @@ publish_chart_dev:
     HELM_CHANNEL: dev
   rules:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_NAME =~ /^\d+\.\d+\.\d+.*$/
-
 
 publish_chart_prod:
   extends: .publish_chart

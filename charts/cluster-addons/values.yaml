@@ -20,9 +20,9 @@ cni:
       namespace: tigera-operator
       values:
         tigeraOperator:
-          registry: oci-registry.catalystcloud.nz
+          registry: oci-registry.catalystcloud.nz/quay.io
         installation:
-          registry: oci-registry.catalystcloud.nz
+          registry: oci-registry.catalystcloud.nz/docker.io
     # Nova metadata service
     # See https://docs.openstack.org/nova/latest/user/metadata.html#the-metadata-service
     globalNetworkPolicy:
@@ -74,8 +74,7 @@ openstack:
       version: 2.29.1
     values:
       image:
-        repository: oci-registry.catalystcloud.nz/catalystcloud/openstack-cloud-controller-manager
-        tag: v1.25.3
+        repository: oci-registry.catalystcloud.nz/registry.k8s.io/provider-os/openstack-cloud-controller-manager
       tolerations:
         - key: node.cloudprovider.kubernetes.io/uninitialized
           value: "true"
@@ -100,35 +99,35 @@ openstack:
       csi:
         attacher:
           image:
-            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-attacher
+            repository: oci-registry.catalystcloud.nz/registry.k8s.io/sig-storage/csi-attacher
             pullPolicy: IfNotPresent
         provisioner:
           image:
-            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-provisioner
+            repository: oci-registry.catalystcloud.nz/registry.k8s.io/sig-storage/csi-provisioner
             pullPolicy: IfNotPresent
         snapshotter:
           image:
-            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-snapshotter
+            repository: oci-registry.catalystcloud.nz/registry.k8s.io/sig-storage/csi-snapshotter
             pullPolicy: IfNotPresent
           resources: {}
           extraArgs: {}
         resizer:
           image:
-            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-resizer
+            repository: oci-registry.catalystcloud.nz/registry.k8s.io/sig-storage/csi-resizer
             pullPolicy: IfNotPresent
         livenessprobe:
           image:
-            repository: oci-registry.catalystcloud.nz/catalystcloud/livenessprobe
+            repository: oci-registry.catalystcloud.nz/registry.k8s.io/sig-storage/livenessprobe
             pullPolicy: IfNotPresent
         nodeDriverRegistrar:
           image:
-            repository: oci-registry.catalystcloud.nz/catalystcloud/csi-node-driver-registrar
+            repository: oci-registry.catalystcloud.nz/registry.k8s.io/sig-storage/csi-node-driver-registrar
             pullPolicy: IfNotPresent
         plugin:
           image:
-            repository: oci-registry.catalystcloud.nz/catalystcloud/cinder-csi-plugin
+            repository: oci-registry.catalystcloud.nz/docker.io/k8scloudprovider/cinder-csi-plugin
             pullPolicy: IfNotPresent
-            tag: v1.22.2 # defaults to .Chart.AppVersion
+            tag: v1.22.2  # defaults to .Chart.AppVersion
           nodePlugin:
             affinity: {}
             nodeSelector: {}
@@ -230,7 +229,7 @@ metricsServer:
     namespace: kube-system
     values:
       image:
-        repository: oci-registry.catalystcloud.nz/catalystcloud/metrics-server
+        repository: oci-registry.catalystcloud.nz/registry.k8s.io/metrics-server/metrics-server
 
 # Settings for the Kubernetes dashboard
 # https://github.com/kubernetes/dashboard/tree/master/charts/helm-chart/kubernetes-dashboard
@@ -245,10 +244,10 @@ kubernetesDashboard:
     namespace: kubernetes-dashboard
     values:
       image:
-        repository: oci-registry.catalystcloud.nz/catalystcloud/dashboard
+        repository: oci-registry.catalystcloud.nz/docker.io/kubernetesui/dashboard
       metricsScraper:
         image:
-          repository: oci-registry.catalystcloud.nz/catalystcloud/metrics-scraper
+          repository: oci-registry.catalystcloud.nz/docker.io/kubernetesui/metrics-scraper
 
 # Settings for ingress controllers
 ingress:
@@ -387,35 +386,33 @@ mellanoxNetworkOperator:
   release:
     namespace: network-operator
     values: {}
-
 # Settings for any custom addons
-custom:
-  {}
-  #  #Indexed by the name of the release on the target cluster
+custom: {}
+  #  # Indexed by the name of the release on the target cluster
   # my-custom-helm-release:
-  #   # Indicates that this is a Helm addon
+  #  # Indicates that this is a Helm addon
   #   kind: HelmRelease
   #   spec:
-  #     # The namespace that the addon should be in
+  #  # The namespace that the addon should be in
   #     namespace: my-namespace
-  #     # Details of the Helm chart to use
+  #  # Details of the Helm chart to use
   #     chart:
-  #       # The chart repository that contains the chart to use
+  #  # The chart repository that contains the chart to use
   #       repo: https://my-project/charts
-  #       # The name of the chart to use
+  #  # The name of the chart to use
   #       name: my-chart
-  #       # The version of the chart to use (must be an exact version)
+  #  # The version of the chart to use (must be an exact version)
   #       version: 1.5.0
-  #     # The Helm values to use for the release
+  #  # The Helm values to use for the release
   #     values: {}
-  # # Indexed by the name of the release on the target cluster
+  #  # Indexed by the name of the release on the target cluster
   # my-custom-manifests:
-  #   # Indicates that this is a Manifests addon
+  #  # Indicates that this is a Manifests addon
   #   kind: Manifests
   #   spec:
-  #     # The namespace that the addon should be in
+  #  # The namespace that the addon should be in
   #     namespace: my-namespace
-  #     # The manifests for the addon, indexed by filename
+  #  # The manifests for the addon, indexed by filename
   #     manifests:
   #       secret.yaml: |-
   #         apiVersion: v1

@@ -288,7 +288,7 @@ controlPlane:
     # controller-manager, scheduler and kube-proxy to 0.0.0.0 so that Prometheus can reach
     # them to collect metrics
     clusterConfiguration:
-      imageRepository: oci-registry.catalystcloud.nz/registry.k8s.io
+      imageRepository: oci-registry.catalystcloud.nz
       etcd:
         local:
           extraArgs:
