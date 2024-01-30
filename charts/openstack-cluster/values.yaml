@@ -65,7 +65,6 @@ clusterNetworking:
     # The CIDR to use if creating a cluster network
     # This is only used if neither of networkFilter and subnetFilter are given
     nodeCidr: 192.168.3.0/24
-
 # Settings for registry mirrors
 # When a mirror is set, it will be tried for images but will fall back to the
 # upstream registry if the image pull fails
@@ -289,7 +288,7 @@ controlPlane:
     # controller-manager, scheduler and kube-proxy to 0.0.0.0 so that Prometheus can reach
     # them to collect metrics
     clusterConfiguration:
-      imageRepository: oci-registry.catalystcloud.nz
+      imageRepository: oci-registry.catalystcloud.nz/registry.k8s.io
       etcd:
         local:
           extraArgs:
